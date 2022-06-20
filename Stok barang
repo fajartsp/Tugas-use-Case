@@ -1,0 +1,167 @@
+#include <stdio.h> 
+#include <string.h> 
+#include <stdlib.h> 
+
+struct sembako { 
+  char nama_barang[50]; 
+  int jml; 
+  struct sembako *next, *prev; 
+}*head, *tail, *curr; 
+
+void view() { 
+  int i = 0; 
+  printf("--- DAFTAR BARANG SEMBAKO ---\n\n"); 
+  printf("--------+-----------------------+------------\n"); 
+  printf("| No. | Name Barang | Jumlah |\n"); 
+  printf("--------+-----------------------+------------\n"); 
+  curr = head; // moving pointer to first node 
+  while (curr) { 
+   i++; 
+   printf("| %3d. | %-25s | %8d |\n", i, curr->nama_barang, curr->jml); 
+    curr = curr->next; 
+    // moving pointer from current node to next node 
+  } 
+  printf("--------+-----------------------+------------\n"); 
+} 
+
+// add a new node to linked list 
+void pushhead(char nama_barang[], int jml) { 
+  curr = (struct sembako*)malloc(sizeof(struct sembako)); 
+  
+  strcpy(curr->nama_barang, nama_barang); 
+  curr->jml = jml; 
+  
+  if (head == NULL) { 
+   head = tail = curr; 
+  } else { 
+    curr->next = head; 
+    head->prev = curr; 
+    head = curr; 
+  } 
+ 
+  head->prev = NULL; 
+  tail->next = NULL; 
+} 
+
+void pop() { 
+  struct sembako *temp; 
+  if (head != NULL) 
+{ 
+  if (curr == head) 
+  { 
+    head = head->next; 
+    free(curr); 
+    if (head != NULL) 
+    { 
+    head->prev = NULL; 
+    } 
+  } else if (curr == tail) { 
+    curr = tail; 
+    tail = tail->prev; 
+    free(curr); 
+    tail->next = NULL; 
+  } else { 
+    temp = head; 
+    while (temp->next != curr) { 
+      temp = temp->next; 
+    } 
+    curr->next->prev = curr->prev; 
+    temp->next = curr->next; 
+    free(curr); 
+    } 
+  } 
+} 
+void popall() { 
+  while (head != NULL) { 
+    curr = head; 
+    head = head->next; 
+    free(curr); 
+  } 
+} 
+void addorder() { 
+  char nama_barang[50]; 
+  int jml; 
+  printf("\n\n\n"); 
+  do 
+  { 
+    printf("Masukkan nama barang [3..50]: "); 
+    scanf("%[^\n]", nama_barang); 
+    fflush(stdin); 
+  } while (strlen(nama_barang) < 3 || strlen(nama_barang) > 50); 
+  printf("\n"); 
+  do 
+  { 
+    printf("Masukkan jumlah barang [1..20]: "); 
+    scanf("%d", &jml); 
+    fflush(stdin); 
+  } while (jml < 1 || jml > 20); 
+  pushhead(nama_barang, jml); 
+  printf("\n\n\n -- Barang berhasil ditambah -- \n"); 
+  getchar(); 
+} 
+void deleteorder() { 
+  int tot = 0; 
+  int pos; 
+  int i; 
+  if (head == NULL) 
+  { 
+    printf("\n\n\n Tidak ada barang dalam daftar sembako -- \n"); 
+  } else { 
+    view(); 
+    curr = head; 
+    while (curr) 
+    { 
+      tot++; 
+       curr = curr->next; 
+    } 
+    printf("\n\n"); 
+    do 
+    { 
+      printf("Masukkan nomor barang [1..%d]", tot); 
+      scanf("%d", &pos); 
+      fflush(stdin); 
+    } while (pos < 1 || pos > tot); 
+    curr = head; 
+    for (i = 1; i < pos; i++) 
+    { 
+      curr = curr->next; 
+    } 
+    pop(); 
+      printf("\n\n\n -- Barang berhasil dihapus -- \n\n\n"); 
+  } 
+} 
+void menu() { 
+  printf("\n Program Data Stock Penjualan \n"); 
+  printf("\n 1. Daftar Stock Barang"); 
+  printf("\n 2. Tambah Stock Barang"); 
+  printf("\n 3. Hapus Stock Barang"); 
+  printf("\n 4. Keluar"); 
+  printf("\n\n >> Masukkan pilihan: "); 
+} 
+int main() { 
+  int choice; 
+  do 
+  { 
+    menu(); 
+    scanf("%d", &choice); 
+    fflush(stdin); 
+    switch (choice) 
+    { 
+      case 1: 
+        view(); 
+        getchar(); 
+        fflush(stdin); 
+        break; 
+      case 2: 
+        addorder(); 
+        break; 
+      case 3: 
+        deleteorder(); 
+        break; 
+      default: 
+        break; 
+    } 
+  } while (choice != 4); 
+  popall(); 
+  return 0; 
+} 
